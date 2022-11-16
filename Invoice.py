@@ -118,6 +118,7 @@ class InvoiceSoftware(BasicUIA):
         winInvoiceQuery = self.FindEl(winMain, ctlType='PaneCtl', type='name', param='发票查询', depth=1)
         winInvoiceQuery.SetActive()
 
+
         self.ClickAndSendKeys(winInvoiceQuery, elX, elY, value)
 
     def ClickQueryBtn(self, winName, elX, elY):
@@ -157,7 +158,7 @@ class InvoiceSoftware(BasicUIA):
             if len(monitoringList) == 0:
                 break
         if len(monitoringList) == 0:
-            self.SetTimeOut(20)
+            self.SetTimeOut(25)
             return True
         else:
             raise Exception('找弹窗错误')
@@ -188,7 +189,11 @@ class InvoiceSoftware(BasicUIA):
         winInvoiceQueryChild = self.FindEl(winInvoiceQuery, ctlType='PaneCtl', type='name', param='布局', depth=1)
 
         # 找到打印窗口
-        winPrint = self.FindEl(winInvoiceQueryChild, ctlType='WinCtl', type='name', param='打印', depth=1)
+        try:
+            winPrint = self.FindEl(winInvoiceQueryChild, ctlType='WinCtl', type='name', param='打印', depth=1)
+        except:
+            time.sleep(1)
+            winPrint = Recurrence(winName, btnName)
 
         # Click 预览
         if isClickLogic:
@@ -196,14 +201,47 @@ class InvoiceSoftware(BasicUIA):
             x, y = btn.GetPosition()
             pyautogui.click(x, y)
             winPrintView = self.FindEl(winPrint, ctlType='WinCtl', type='name', param='打印预览', depth=1)
-            winPrintView.Maximize(1)
+            winPrintView.Maximize(1.5)
             pass
         else:
+            # 关闭预览窗口
+            winPrintView = self.FindEl(winPrint, ctlType='WinCtl', type='name', param='打印预览', depth=1)
+            self.CloseWindow(winPrintView)
+
+            # 关闭打印窗口
             btn = self.FindEl(winPrint, ctlType='BtnCtl', type='name', param='不打印', depth=1)
             x, y = btn.GetPosition()
             pyautogui.click(x, y)
-            winPrintView = self.FindEl(winPrint, ctlType='WinCtl', type='name', param='打印预览', depth=1)
+            time.sleep(0.2)
+
+            # 关闭 增值税专用发票查询 窗口
+            self.ClickEl('增值税专用发票查询', 1146, 20, el=winInvoiceQueryChild)
+            # self.CloseWindow(winInvoiceQueryChild.GetChildren()[0])
+
+            # 关闭 发票查询 窗口
+            # self.CloseWindow(winInvoiceQuery)
         pass
+
+    def GetScreenshot(self, strImgInputPath):
+        pyautogui.screenshot(strImgInputPath)
+
+    def CloseWindow(self, el):
+        objWindowPattern = el.GetWindowPattern()
+        objWindowPattern.Close(0.2)
+        pass
+
+    def Recurrence(self, winName, btnName):
+        winMain = self.GetMainWindow(winName)
+        # 找到window 发票查询
+        winInvoiceQuery = self.FindEl(winMain, ctlType='PaneCtl', type='name', param='发票查询', depth=1)
+        winInvoiceQuery.SetActive()
+
+        # 找到Window 增值税专用发票查询
+        winInvoiceQueryChild = self.FindEl(winInvoiceQuery, ctlType='PaneCtl', type='name', param='布局', depth=1)
+
+        # 找到打印窗口
+        winPrint = self.FindEl(winInvoiceQueryChild, ctlType='WinCtl', type='name', param='打印', depth=1)
+        return winPrint
 
 
 
@@ -221,7 +259,7 @@ if __name__ == '__main__':
         'elXDay': 219,
         'day': '01',
         'exYDay': 94
-    }
+    } # Input Params
 
     dicDateTo = {
         'elXYear': 150,
@@ -233,19 +271,20 @@ if __name__ == '__main__':
         'elXDay':219,
         'day': '15',
         'exYDay': 156
-    }
+    } # Input Params
 
-    strInvoiceNum = '20189850'
+    strInvoiceNum = '20189850' # Input Params
     strWinQueryName = '增值税发票税控开票软件（金税盘版）'
+    strImgInputPath = os.path.join(os.getcwd(), r'Screenshots\%s.jpg'%strInvoiceNum)
 
 
     objInvoice = InvoiceSoftware()
-    # objInvoice.OpenSoftware()
+    objInvoice.OpenSoftware()
 
     # Test Function
     # testKK = objInvoice.shouldDoubleClickQueryResult(strWinQueryName)
     # objInvoice.ClickPrintButton(strWinQueryName, 1115, 83)
-    objInvoice.ClickBtnInPrintWindow(strWinQueryName, '预览')
+    # objInvoice.ClickBtnInPrintWindow(strWinQueryName, '预览', isClickLogic=False)
 
     # Click Login Button
     objInvoice.ClickEl('登录-增值税发票开票软件金税盘版', 830, 528)
@@ -275,3 +314,16 @@ if __name__ == '__main__':
     # Click 打印
     objInvoice.ClickPrintButton(strWinQueryName, 1115, 83)
 
+    # 打开发票预览
+    objInvoice.ClickBtnInPrintWindow(strWinQueryName, '预览', isClickLogic=True)
+
+    # Print screenshot
+    objInvoice.GetScreenshot(strImgInputPath)
+
+    # 关闭窗口
+    objInvoice.ClickBtnInPrintWindow(strWinQueryName, '预览', isClickLogic=False)
+
+    # Check 弹窗- 过程提示 -是否已经消失
+    isDisappeared = objInvoice.ShouldDoubleClickQueryResult(strWinQueryName)
+
+    
