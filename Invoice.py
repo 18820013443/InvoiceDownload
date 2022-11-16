@@ -58,7 +58,6 @@ class InvoiceSoftware(BasicUIA):
         x, y = winLogin.GetPosition(ratioX, ratioY)
         pyautogui.click(x, y)
 
-
     def ClickInvoiceMgt(self):
         winMain = self.GetMainWindow('增值税发票税控开票软件（金税盘版）')
 
@@ -243,6 +242,55 @@ class InvoiceSoftware(BasicUIA):
         winPrint = self.FindEl(winInvoiceQueryChild, ctlType='WinCtl', type='name', param='打印', depth=1)
         return winPrint
 
+
+def InvoiceOperations(dicDateFrom, dicDateTo, strInvoiceNum, isFirstTime):
+    strWinQueryName = '增值税发票税控开票软件（金税盘版）'
+    strImgInputPath = os.path.join(os.getcwd(), r'Screenshots\%s.jpg'%strInvoiceNum)
+    if isFirstTime:
+        objInvoice = InvoiceSoftware()
+        objInvoice.OpenSoftware()
+
+         # Click Login Button
+        objInvoice.ClickEl('登录-增值税发票开票软件金税盘版', 830, 528)
+
+        # Click Invocie Mgt
+        objInvoice.ClickEl(strWinQueryName, 372, 107)
+
+        # Click 发票查询
+        objInvoice.ClickQueryInvoice(strWinQueryName, 372, 197, 242)
+
+    # Input 开始日期 & 结束日期
+    objInvoice.InputDate(strWinQueryName, dicDateFrom, dicDateTo)
+
+    # Input Invoice#
+    objInvoice.InputInvoiceNumber(strWinQueryName, 193, 216, strInvoiceNum)
+
+    # Click 查询
+    objInvoice.ClickQueryBtn(strWinQueryName, 386, 216)
+
+    # Check 弹窗- 过程提示 -是否已经消失
+    isDisappeared = objInvoice.ShouldDoubleClickQueryResult(strWinQueryName)
+
+    # 双击查询结果
+    if isDisappeared:
+        objInvoice.DoubleClickQueryResult(strWinQueryName, 386, 314)
+
+    # Click 打印
+    objInvoice.ClickPrintButton(strWinQueryName, 1115, 83)
+
+    # 打开发票预览
+    objInvoice.ClickBtnInPrintWindow(strWinQueryName, '预览', isClickLogic=True)
+
+    # Print screenshot
+    objInvoice.GetScreenshot(strImgInputPath)
+
+    # 关闭窗口
+    objInvoice.ClickBtnInPrintWindow(strWinQueryName, '预览', isClickLogic=False)
+
+    # Check 弹窗- 过程提示 -是否已经消失
+    isDisappeared = objInvoice.ShouldDoubleClickQueryResult(strWinQueryName)
+
+    return strImgInputPath
 
 
 

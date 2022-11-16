@@ -3,14 +3,16 @@ import numpy as np
 import os
 
 class Pic:
-    def __init__(self,strInputImgPath, strOutputImgPath):
-        self.strInputImgPath = strInputImgPath
-        self.strOutputImgPath = strOutputImgPath
+    # def __init__(self,strInputImgPath, strOutputImgPath):
+    def __init__(self):
+        # self.strInputImgPath = strInputImgPath
+        # self.strOutputImgPath = strOutputImgPath
+        pass
 
-    def ClipImg(self):
+    def ClipImg(self, strInputImgPath, strOutputImgPath):
         # strImgPath = os.path.join(os.getcwd(), r'ExamplePics\example.JPG')
         # img = cv.imread(strImgPath)
-        img = cv.imread(self.strInputImgPath)
+        img = cv.imread(strInputImgPath)
         imgGs = cv.GaussianBlur(img, (3,3), 0)
         imgGray = cv.cvtColor(imgGs, cv.COLOR_BGR2GRAY)
         th = cv.adaptiveThreshold(imgGray, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY, 11, 4)
@@ -34,7 +36,7 @@ class Pic:
 
         clipImg = img[y:h, x:w]
         # cv.imwrite('result.jpg', clipImg)
-        cv.imwrite(self.strOutputImgPath, clipImg)
+        cv.imwrite(strOutputImgPath, clipImg)
         # cv.imshow('result', clipImg)
         # cv.waitKey(0)
         # cv.destroyAllwindows()
@@ -43,7 +45,7 @@ class Pic:
 if __name__ == '__main__':
     strInputImgPath = os.path.join(os.getcwd(), r'ExamplePics\example.JPG')
     strOutputImgPath = os.path.join(os.getcwd(), r'ExamplePics\result.jpg')
-    objPic = Pic(strInputImgPath, strOutputImgPath)
-    objPic.ClipImg()
+    objPic = Pic()
+    objPic.ClipImg(strInputImgPath, strOutputImgPath)
 
 
