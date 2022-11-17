@@ -14,7 +14,7 @@ class AppExcel:
         self.hasColIsSuccessful = False
 
     def KillExcel(self):
-        os.system('"task kill /f /im excel.exe"')
+        os.system('"taskkill /f /im excel.exe"')
 
     def AddColumnIsSuccessful(self, sheetName):
         # hasColIsSuccessful = False

@@ -19,6 +19,7 @@ class Main:
         screenshotsList = []
         for strFilePath in inputFileList:
             sheetName = 'sheet1'
+            StrExcelName = os.path.basename(strFilePath)
             isFirstTime, hasError, hasReset = True, False, False
             df = objData.GetInputDf(strFilePath, sheetName)
 
@@ -43,9 +44,16 @@ class Main:
                     hasReset = True
             
             # if not hasError:
-            objExcel = AppExcel()
-            objExcel.WriteToExcel(strFilePath, sheetName, df)
             self.ClipPicture(screenshotsList)
+            objExcel = AppExcel()
+            self.logger.info(f'结果回写到{strFilePath}')
+            objExcel.WriteToExcel(strFilePath, sheetName, df)
+            self.logger.info(f'回写到{strFilePath}完成')
+        
+        os.system('"taskkill /f /im skfpShell.exe"')
+        os.system('"taskkill /f /im skfp.exe"')
+        self.logger.info('所有输入文件处理完成！')
+
         
        
     def GetInputFileList(self):
