@@ -71,15 +71,8 @@ class InvoiceSoftware(BasicUIA):
         pyautogui.click(x, y)
     
     def ClickEl(self, winName, elX, elY, el=None, shouldDoubleClick=False):
-        if winName == '登录-增值税发票开票软件金税盘版':
-            self.SetTimeOut(1)
-            try:
-                win = self.GetMainWindow(winName) if not el else el
-            except:
-                time.sleep(1)
-        else:
-            win = self.GetMainWindow(winName) if not el else el
-            
+        
+        win = self.GetMainWindow(winName) if not el else el 
         totalX, loginX = win.BoundingRectangle.width(), elX # elX 表示元素中心距离窗口左边距的长度
         totalY, loginY = win.BoundingRectangle.height(), elY # elY 表示元素中心距离窗口top的高度
         ratioX = loginX / totalX
@@ -202,8 +195,10 @@ class InvoiceSoftware(BasicUIA):
             self.ClickEl('发票打印', 173, 471, el=winPopConfirm)
         except:
             time.sleep(0.5)
-            self.RecurrenceConfrimWindow(winName)
-            winPopConfirm = self.FindEl(winInvoiceQueryChild, ctlType='PaneCtl', type='name', param='发票打印', depth=1)
+            # self.RecurrenceConfrimWindow(winName)
+            # winPopConfirm = self.FindEl(winInvoiceQueryChild, ctlType='PaneCtl', type='name', param='发票打印', depth=1)
+            winMain = self.GetMainWindow(winName)
+            winPopConfirm = self.FindEl(winMain, ctlType='PaneCtl', type='name', param='发票打印', depth=1)
             self.ClickEl('发票打印', 173, 471, el=winPopConfirm)
         pass
 
@@ -222,7 +217,7 @@ class InvoiceSoftware(BasicUIA):
             winPrint = self.FindEl(winInvoiceQueryChild, ctlType='WinCtl', type='name', param='打印', depth=1)
         except: # 打印窗口直接位于 Main Window下面
             time.sleep(1)
-            winMain = self.GetMainWindow(name)
+            winMain = self.GetMainWindow(winName)
             winPrint = self.FindEl(winMain, ctlType='WinCtl', type='name', param='打印', depth=1)
             # winPrint = self.Recurrence(winName, btnName)
         self.SetTimeOut(15)
@@ -233,7 +228,7 @@ class InvoiceSoftware(BasicUIA):
             x, y = btn.GetPosition()
             pyautogui.click(x, y)
             winPrintView = self.FindEl(winPrint, ctlType='WinCtl', type='name', param='打印预览', depth=1)
-            winPrintView.Maximize(2)
+            winPrintView.Maximize(1.5)
             pass
         else:
             # 关闭预览窗口
