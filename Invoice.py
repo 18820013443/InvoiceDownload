@@ -11,13 +11,14 @@ import time
 class InvoiceSoftware(BasicUIA):
     def __init__(self):
         super().__init__()
-        # log = Log()
-        # self.logger = log.GetLog()
+        log = Log()
+        self.logger = log.GetLog()
 
     def OpenSoftware(self):
         self.KillSoftware()
         strPath = r'"C:\Program Files (x86)\Aisino\开票服务器开票软件\Bin\skfpShell.exe" "-h"'
         subprocess.Popen(strPath)
+        self.logger.info('打开软件')
         # strPath = r"C:\Program Files (x86)\Aisino\开票服务器开票软件\Bin\skfp.exe"
         # os.system(f'"{strPath}" &')
     
@@ -57,6 +58,7 @@ class InvoiceSoftware(BasicUIA):
         # x, y = LocateEl(strPath)
         x, y = winLogin.GetPosition(ratioX, ratioY)
         pyautogui.click(x, y)
+        self.logger.info('点击登陆按钮')
 
     def ClickInvoiceMgt(self):
         winMain = self.GetMainWindow('增值税发票税控开票软件（金税盘版）')
@@ -69,6 +71,7 @@ class InvoiceSoftware(BasicUIA):
         # x, y = LocateEl(strPath)
         x, y = winMain.GetPosition(ratioX, ratioY)
         pyautogui.click(x, y)
+        self.logger.info('点击发票管理')
     
     def ClickEl(self, winName, elX, elY, el=None, shouldDoubleClick=False):
         
@@ -90,6 +93,7 @@ class InvoiceSoftware(BasicUIA):
         self.ClickEl(winName, elX, elY1)
         # Click 已开发票查询
         self.ClickEl(winName, elX, elY2)
+        self.logger.info('打开已开发票查询窗口')
     
     def InputDate(self, winName, dicDateFrom, dicDateTo):
         winMain = self.GetMainWindow(winName)
@@ -106,7 +110,7 @@ class InvoiceSoftware(BasicUIA):
         self.ClickAndSendKeys(winInvoiceQuery, dicDateTo['elXYear'], dicDateTo['elYYear'], dicDateTo['year'])
         self.ClickAndSendKeys(winInvoiceQuery, dicDateTo['elXMonth'], dicDateTo['elYMonth'], dicDateTo['month'])
         self.ClickAndSendKeys(winInvoiceQuery, dicDateTo['elXDay'], dicDateTo['exYDay'], dicDateTo['day'])
-        pass
+        self.logger.info('输入日期')
         
     def ClickAndSendKeys(self, el, elX, elY, value):
         self.ClickEl('发票查询', elX, elY, el=el)
@@ -118,8 +122,8 @@ class InvoiceSoftware(BasicUIA):
         winInvoiceQuery = self.FindEl(winMain, ctlType='PaneCtl', type='name', param='发票查询', depth=1)
         winInvoiceQuery.SetActive()
 
-
         self.ClickAndSendKeys(winInvoiceQuery, elX, elY, value)
+        self.logger.info('输入Invoice Number')
 
     def ClickQueryBtn(self, winName, elX, elY):
         winMain = self.GetMainWindow(winName)
@@ -128,6 +132,7 @@ class InvoiceSoftware(BasicUIA):
         winInvoiceQuery.SetActive()
 
         self.ClickEl('发票查询', elX, elY, el=winInvoiceQuery)
+        self.logger.info('点击发票查询按钮')
 
     def DoubleClickQueryResult(self, winName, elX, elY):
         winMain = self.GetMainWindow(winName)
@@ -157,9 +162,11 @@ class InvoiceSoftware(BasicUIA):
             try:
                 el = self.FindEl(winInvoiceQuery, ctlType='PaneCtl', type='name', param='过程提示', depth=1)
                 if el.Name == '过程提示' and len(monitoringList) == 2:
+                    self.logger.info('找到过程提示窗口')
                     monitoringList.pop()
             except:
                 count += 1
+                self.logger.info('没有找到过程提示窗口')
                 if len(monitoringList) == 1:
                     monitoringList.pop()
                 
@@ -188,19 +195,21 @@ class InvoiceSoftware(BasicUIA):
         winInvoiceQueryChild = self.FindEl(winInvoiceQuery, ctlType='PaneCtl', type='name', param='布局', depth=1)
         # 点击打印
         self.ClickEl('增值税专用发票查询', elX, elY, el=winInvoiceQueryChild)
+        self.logger.info('点击（增值税专用发票查询）窗口上的（打印）按钮')
 
         # 点击确定
         try:
+            self.SetTimeOut(1)
             winPopConfirm = self.FindEl(winInvoiceQueryChild, ctlType='PaneCtl', type='name', param='发票打印', depth=1)
             self.ClickEl('发票打印', 173, 471, el=winPopConfirm)
+            self.logger.info('点击（确认对话框中）中（确认）按钮')
         except:
             time.sleep(0.5)
-            # self.RecurrenceConfrimWindow(winName)
-            # winPopConfirm = self.FindEl(winInvoiceQueryChild, ctlType='PaneCtl', type='name', param='发票打印', depth=1)
-            winMain = self.GetMainWindow(winName)
-            winPopConfirm = self.FindEl(winMain, ctlType='PaneCtl', type='name', param='发票打印', depth=1)
+            self.logger.info('点击（确认对话框中）中（确认）按钮-出错，重新查找点击按钮！')
+            winInvoiceQueryChild = self.RecurrenceConfrimWindow()
+            winPopConfirm = self.FindEl(winInvoiceQueryChild, ctlType='PaneCtl', type='name', param='发票打印', depth=1)
             self.ClickEl('发票打印', 173, 471, el=winPopConfirm)
-        pass
+        self.SetTimeOut(20)
 
     def ClickBtnInPrintWindow(self, winName, btnName, isClickLogic=True):
         winMain = self.GetMainWindow(winName)
@@ -215,6 +224,7 @@ class InvoiceSoftware(BasicUIA):
         try:
             self.SetTimeOut(1)
             winPrint = self.FindEl(winInvoiceQueryChild, ctlType='WinCtl', type='name', param='打印', depth=1)
+            self.logger.info('')
         except: # 打印窗口直接位于 Main Window下面
             time.sleep(1)
             winMain = self.GetMainWindow(winName)
@@ -227,22 +237,27 @@ class InvoiceSoftware(BasicUIA):
             btn = self.FindEl(winPrint, ctlType='BtnCtl', type='name', param='预览', depth=1)
             x, y = btn.GetPosition()
             pyautogui.click(x, y)
+            self.logger.info('点击（预览）窗口中（打印）按钮')
             winPrintView = self.FindEl(winPrint, ctlType='WinCtl', type='name', param='打印预览', depth=1)
             winPrintView.Maximize(1.5)
+            self.logger.info('最大化发票窗口')
             pass
         else:
             # 关闭预览窗口
             winPrintView = self.FindEl(winPrint, ctlType='WinCtl', type='name', param='打印预览', depth=1)
             self.CloseWindow(winPrintView)
+            self.logger.info('关闭预览窗口')
 
             # 关闭打印窗口
             btn = self.FindEl(winPrint, ctlType='BtnCtl', type='name', param='不打印', depth=1)
             x, y = btn.GetPosition()
             pyautogui.click(x, y)
             time.sleep(1)
+            self.logger.info('关闭预览窗口')
 
             # 关闭 增值税专用发票查询 窗口
             self.ClickEl('增值税专用发票查询', 1146, 20, el=winInvoiceQueryChild)
+            self.logger.info('关闭 增值税专用发票查询 窗口')
             # self.CloseWindow(winInvoiceQueryChild.GetChildren()[0])
 
             # 关闭 发票查询 窗口
@@ -278,6 +293,7 @@ class InvoiceSoftware(BasicUIA):
 
         # 找到Window 增值税专用发票查询
         winInvoiceQueryChild = self.FindEl(winInvoiceQuery, ctlType='PaneCtl', type='name', param='布局', depth=1)
+        return winInvoiceQueryChild
 
 
 def InvoiceOperations(dicDateFrom, dicDateTo, strInvoiceNum, isFirstTime):
@@ -320,6 +336,7 @@ def InvoiceOperations(dicDateFrom, dicDateTo, strInvoiceNum, isFirstTime):
 
     # Print screenshot
     objInvoice.GetScreenshot(strImgInputPath)
+    objInvoice.logger.info(f'Invoice-{strInvoiceNum}截图成功')
 
     # 关闭窗口
     objInvoice.ClickBtnInPrintWindow(strWinQueryName, '预览', isClickLogic=False)

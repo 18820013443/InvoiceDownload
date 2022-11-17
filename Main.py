@@ -1,20 +1,25 @@
 from Excel import Data, AppExcel
 from Invoice import InvoiceOperations
 from ClipPic import Pic
+from Log import Log
 import os
 import datetime
 
 
 class Main:
+    def __init__(self) -> None:
+        self.objPic = Pic()
+        log = Log()
+        self.logger = log.GetLog()
 
     def main(self):
         objData = Data()
-        objPic = Pic()
+        
         inputFileList = self.GetInputFileList()
         screenshotsList = []
         for strFilePath in inputFileList:
             sheetName = 'sheet1'
-            isFirstTime = True
+            isFirstTime, hasError = True, False
             df = objData.GetInputDf(strFilePath, sheetName)
 
             for index, row in df.iterrows():
@@ -22,16 +27,26 @@ class Main:
                 isFirstTime = True if index == 0 else False
                 dicDateFrom = self.GetDicDate(True, row['开票日期'].strip())
                 dicDateTo = self.GetDicDate(False)
-                strImgInputPath = InvoiceOperations(dicDateFrom, dicDateTo, strInvoiceNum, isFirstTime)
+
+                # 异常处理，如果出现报错，将df中的数据写入文件，并且将sreenshot处理好，最好写入日志
+                try:
+                    strImgInputPath = InvoiceOperations(dicDateFrom, dicDateTo, strInvoiceNum, isFirstTime)
+                    row['isSuccessful'] = ['Y']
+                except Exception as e:
+                    hasError = True
+                    self.logger.error(e)
+                    objExcel = AppExcel()
+                    objExcel.WriteToExcel(strFilePath, sheetName, df)
+                    self.ClipPicture(screenshotsList)
+                    
+
                 screenshotsList.append(strImgInputPath)
             
-            objExcel = AppExcel()
-            objExcel.WriteToExcel(strFilePath, sheetName, df)
+            if not hasError:
+                objExcel = AppExcel()
+                objExcel.WriteToExcel(strFilePath, sheetName, df)
         
-        for strImgInputPath in screenshotsList:
-            strOutputImgName = os.path.basename(strOutputImgPath)
-            strOutputImgPath = os.path.join(os.getcwd(), r'ClipImgs\%s'%strOutputImgName)
-            objPic.ClipImg(strInputImgPath, strOutputImgPath)
+       
                 
 
     def GetInputFileList(self):
@@ -79,6 +94,13 @@ class Main:
             dicDateTo['month'] = str(date.month)
             dicDateTo['day'] = str(date.day)
             return dicDateTo
+
+    def ClipPicture(self, screenshotsList):
+        for strInputImgPath in screenshotsList:
+            strOutputImgName = os.path.basename(strOutputImgPath)
+            strOutputImgPath = os.path.join(os.getcwd(), r'ClipImgs\%s'%strOutputImgName)
+            self.objPic.ClipImg(strInputImgPath, strOutputImgPath)
+
 
 if __name__ == '__main__':
     objMain = Main()

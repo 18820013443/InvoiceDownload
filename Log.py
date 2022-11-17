@@ -5,7 +5,7 @@ class Log():
         self.log = logging.getLogger('KK')
         self.log.setLevel(level)
 
-    def ConsoleHandle(self, leve='DEBUG'):
+    def ConsoleHandle(self, level='DEBUG'):
         '''控制台处理器'''
         consoleHandler = logging.StreamHandler()
         consoleHandler.setLevel(level)
@@ -29,4 +29,4 @@ class Log():
         '''日志器添加到控制台处理器'''
         self.log.addHandler(self.ConsoleHandle())
         self.log.addHandler(self.FileHandle())
-        return slef.log
+        return self.log
