@@ -31,6 +31,7 @@ class Main:
                 # 异常处理，如果出现报错，将df中的数据写入文件，并且将sreenshot处理好，最好写入日志
                 try:
                     strImgInputPath = InvoiceOperations(dicDateFrom, dicDateTo, strInvoiceNum, isFirstTime)
+                    screenshotsList.append(strImgInputPath)
                     row['isSuccessful'] = ['Y']
                 except Exception as e:
                     hasError = True
@@ -38,16 +39,12 @@ class Main:
                     objExcel = AppExcel()
                     objExcel.WriteToExcel(strFilePath, sheetName, df)
                     self.ClipPicture(screenshotsList)
-                    
-                screenshotsList.append(strImgInputPath)
             
             if not hasError:
                 objExcel = AppExcel()
                 objExcel.WriteToExcel(strFilePath, sheetName, df)
         
        
-                
-
     def GetInputFileList(self):
         outputList = []
         strInputFolder = os.path.join(os.getcwd(), r'InputFile')
