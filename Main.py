@@ -75,9 +75,9 @@ class Main:
                 'day': '15',
                 'exYDay': 156
             } # Input Params
-            dicDateTo['year'] = date.year
-            dicDateTo['month'] = date.month
-            dicDateTo['day'] = date.day
+            dicDateTo['year'] = str(date.year)
+            dicDateTo['month'] = str(date.month)
+            dicDateTo['day'] = str(date.day)
             return dicDateTo
 
 if __name__ == '__main__':

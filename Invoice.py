@@ -71,7 +71,15 @@ class InvoiceSoftware(BasicUIA):
         pyautogui.click(x, y)
     
     def ClickEl(self, winName, elX, elY, el=None, shouldDoubleClick=False):
-        win = self.GetMainWindow(winName) if not el else el
+        if winName == '登录-增值税发票开票软件金税盘版':
+            self.SetTimeOut(1)
+            try:
+                win = self.GetMainWindow(winName) if not el else el
+            except:
+                time.sleep(1)
+        else:
+            win = self.GetMainWindow(winName) if not el else el
+            
         totalX, loginX = win.BoundingRectangle.width(), elX # elX 表示元素中心距离窗口左边距的长度
         totalY, loginY = win.BoundingRectangle.height(), elY # elY 表示元素中心距离窗口top的高度
         ratioX = loginX / totalX
@@ -109,7 +117,7 @@ class InvoiceSoftware(BasicUIA):
         
     def ClickAndSendKeys(self, el, elX, elY, value):
         self.ClickEl('发票查询', elX, elY, el=el)
-        pyautogui.typewrite(value, interval=0.1)
+        pyautogui.typewrite(str(value), interval=0.1)
 
     def InputInvoiceNumber(self, winName, elX, elY, value):
         winMain = self.GetMainWindow(winName)
@@ -137,30 +145,45 @@ class InvoiceSoftware(BasicUIA):
         self.ClickEl('发票查询', elX, elY, el=winInvoiceQuery, shouldDoubleClick=True)
 
     def ShouldDoubleClickQueryResult(self, winName):
+         
         winMain = self.GetMainWindow(winName)
         # 找到window 发票查询
         winInvoiceQuery = self.FindEl(winMain, ctlType='PaneCtl', type='name', param='发票查询', depth=1)
 
         monitoringList = ['Y', 'Y']
-        endTime = time.time() + 40
+        endTime = time.time() + 30
+        count = 1
         while True and time.time() < endTime:
-            self.SetTimeOut(0.8)
+
+            # winMain = self.GetMainWindow(winName)
+            # # 找到window 发票查询
+            # winInvoiceQuery = self.FindEl(winMain, ctlType='PaneCtl', type='name', param='发票查询', depth=1)
+
+            self.SetTimeOut(0.5)
             # winInvoiceQuery.SetActive()
             try:
                 el = self.FindEl(winInvoiceQuery, ctlType='PaneCtl', type='name', param='过程提示', depth=1)
                 if el.Name == '过程提示' and len(monitoringList) == 2:
                     monitoringList.pop()
             except:
+                count += 1
                 if len(monitoringList) == 1:
                     monitoringList.pop()
                 
+            # 如果找了5次还没找到弹窗，直接退出将monitoringList设置为空，退出查找
+            if count == 5:
+                monitoringList = []
+
             if len(monitoringList) == 0:
                 break
+
+
         if len(monitoringList) == 0:
             self.SetTimeOut(25)
             return True
         else:
-            raise Exception('找弹窗错误')
+            return True
+            # raise Exception('找弹窗错误')
 
     def ClickPrintButton(self, winName, elX, elY):
         winMain = self.GetMainWindow(winName)
@@ -174,8 +197,14 @@ class InvoiceSoftware(BasicUIA):
         self.ClickEl('增值税专用发票查询', elX, elY, el=winInvoiceQueryChild)
 
         # 点击确定
-        winPopConfirm = self.FindEl(winInvoiceQueryChild, ctlType='PaneCtl', type='name', param='发票打印', depth=1)
-        self.ClickEl('发票打印', 173, 471, el=winPopConfirm)
+        try:
+            winPopConfirm = self.FindEl(winInvoiceQueryChild, ctlType='PaneCtl', type='name', param='发票打印', depth=1)
+            self.ClickEl('发票打印', 173, 471, el=winPopConfirm)
+        except:
+            time.sleep(0.5)
+            self.RecurrenceConfrimWindow(winName)
+            winPopConfirm = self.FindEl(winInvoiceQueryChild, ctlType='PaneCtl', type='name', param='发票打印', depth=1)
+            self.ClickEl('发票打印', 173, 471, el=winPopConfirm)
         pass
 
     def ClickBtnInPrintWindow(self, winName, btnName, isClickLogic=True):
@@ -189,10 +218,14 @@ class InvoiceSoftware(BasicUIA):
 
         # 找到打印窗口
         try:
+            self.SetTimeOut(1)
             winPrint = self.FindEl(winInvoiceQueryChild, ctlType='WinCtl', type='name', param='打印', depth=1)
-        except:
+        except: # 打印窗口直接位于 Main Window下面
             time.sleep(1)
-            winPrint = Recurrence(winName, btnName)
+            winMain = self.GetMainWindow(name)
+            winPrint = self.FindEl(winMain, ctlType='WinCtl', type='name', param='打印', depth=1)
+            # winPrint = self.Recurrence(winName, btnName)
+        self.SetTimeOut(15)
 
         # Click 预览
         if isClickLogic:
@@ -200,7 +233,7 @@ class InvoiceSoftware(BasicUIA):
             x, y = btn.GetPosition()
             pyautogui.click(x, y)
             winPrintView = self.FindEl(winPrint, ctlType='WinCtl', type='name', param='打印预览', depth=1)
-            winPrintView.Maximize(1.5)
+            winPrintView.Maximize(2)
             pass
         else:
             # 关闭预览窗口
@@ -211,7 +244,7 @@ class InvoiceSoftware(BasicUIA):
             btn = self.FindEl(winPrint, ctlType='BtnCtl', type='name', param='不打印', depth=1)
             x, y = btn.GetPosition()
             pyautogui.click(x, y)
-            time.sleep(0.2)
+            time.sleep(1)
 
             # 关闭 增值税专用发票查询 窗口
             self.ClickEl('增值税专用发票查询', 1146, 20, el=winInvoiceQueryChild)
@@ -241,13 +274,22 @@ class InvoiceSoftware(BasicUIA):
         # 找到打印窗口
         winPrint = self.FindEl(winInvoiceQueryChild, ctlType='WinCtl', type='name', param='打印', depth=1)
         return winPrint
+    
+    def RecurrenceConfrimWindow(self, winName):
+        winMain = self.GetMainWindow(winName)
+        # 找到window 发票查询
+        winInvoiceQuery = self.FindEl(winMain, ctlType='PaneCtl', type='name', param='发票查询', depth=1)
+        winInvoiceQuery.SetActive()
+
+        # 找到Window 增值税专用发票查询
+        winInvoiceQueryChild = self.FindEl(winInvoiceQuery, ctlType='PaneCtl', type='name', param='布局', depth=1)
 
 
 def InvoiceOperations(dicDateFrom, dicDateTo, strInvoiceNum, isFirstTime):
     strWinQueryName = '增值税发票税控开票软件（金税盘版）'
     strImgInputPath = os.path.join(os.getcwd(), r'Screenshots\%s.jpg'%strInvoiceNum)
+    objInvoice = InvoiceSoftware()
     if isFirstTime:
-        objInvoice = InvoiceSoftware()
         objInvoice.OpenSoftware()
 
          # Click Login Button
