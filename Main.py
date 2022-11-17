@@ -39,7 +39,6 @@ class Main:
                     objExcel.WriteToExcel(strFilePath, sheetName, df)
                     self.ClipPicture(screenshotsList)
                     
-
                 screenshotsList.append(strImgInputPath)
             
             if not hasError:
@@ -97,6 +96,8 @@ class Main:
 
     def ClipPicture(self, screenshotsList):
         for strInputImgPath in screenshotsList:
+            strImgName = os.path.basename(strInputImgPath)
+            self.logger.info(f'{strImgName}图片修改成功')
             strOutputImgName = os.path.basename(strOutputImgPath)
             strOutputImgPath = os.path.join(os.getcwd(), r'ClipImgs\%s'%strOutputImgName)
             self.objPic.ClipImg(strInputImgPath, strOutputImgPath)
