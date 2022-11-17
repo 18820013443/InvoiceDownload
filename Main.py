@@ -19,12 +19,13 @@ class Main:
         screenshotsList = []
         for strFilePath in inputFileList:
             sheetName = 'sheet1'
-            isFirstTime, hasError = True, False
+            isFirstTime, hasError, hasReset = True, False, False
             df = objData.GetInputDf(strFilePath, sheetName)
 
             for index, row in df.iterrows():
                 strInvoiceNum = row['发票号码'].strip()
-                isFirstTime = True if index == 0 else False
+                isFirstTime = True if index == 0 or hasReset else False
+                hasReset = False
                 dicDateFrom = self.GetDicDate(True, row['开票日期'].strip())
                 dicDateTo = self.GetDicDate(False)
 
@@ -34,15 +35,17 @@ class Main:
                     screenshotsList.append(strImgInputPath)
                     row['isSuccessful'] = ['Y']
                 except Exception as e:
-                    hasError = True
+                    # hasError = True
                     self.logger.error(e)
-                    objExcel = AppExcel()
-                    objExcel.WriteToExcel(strFilePath, sheetName, df)
-                    self.ClipPicture(screenshotsList)
+                    # objExcel = AppExcel()
+                    # objExcel.WriteToExcel(strFilePath, sheetName, df)
+                    # self.ClipPicture(screenshotsList)
+                    hasReset = True
             
-            if not hasError:
-                objExcel = AppExcel()
-                objExcel.WriteToExcel(strFilePath, sheetName, df)
+            # if not hasError:
+            objExcel = AppExcel()
+            objExcel.WriteToExcel(strFilePath, sheetName, df)
+            self.ClipPicture(screenshotsList)
         
        
     def GetInputFileList(self):
@@ -92,13 +95,18 @@ class Main:
             return dicDateTo
 
     def ClipPicture(self, screenshotsList):
+        self.logger.info('----------------------------开始裁剪发票------------------------------')
         for strInputImgPath in screenshotsList:
-            strImgName = os.path.basename(strInputImgPath)
-            self.logger.info(f'{strImgName}图片修改成功')
-            strOutputImgName = os.path.basename(strOutputImgPath)
+            strOutputImgName = os.path.basename(strInputImgPath)
+            # strOutputImgName = os.path.basename(strOutputImgPath)
             strOutputImgPath = os.path.join(os.getcwd(), r'ClipImgs\%s'%strOutputImgName)
-            self.objPic.ClipImg(strInputImgPath, strOutputImgPath)
-
+            try:
+                self.objPic.ClipImg(strInputImgPath, strOutputImgPath)
+                self.logger.info(f'发票{strOutputImgName}裁剪成功')
+            except Exception as e:
+                self.logger.error(f'发票{strOutputImgName}裁剪失败--{e}')
+                next
+        self.logger.info('----------------------------结束裁剪发票------------------------------')
 
 if __name__ == '__main__':
     objMain = Main()

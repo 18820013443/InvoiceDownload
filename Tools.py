@@ -9,7 +9,7 @@ class BasicUIA(object):
     def GetMainWindow(self, name):
         uia.SetGlobalSearchTimeout(20)
         winMain = uia.WindowControl(searchDepth=1, Name=name, foundIndex=1)
-        winMain.SetTopmost()
+        # winMain.SetTopmost()
         uia.SetGlobalSearchTimeout(15)
         return winMain
     
@@ -30,11 +30,11 @@ class BasicUIA(object):
         depth, type, param = kwargs['depth'], kwargs['type'], kwargs['param']
         if type == 'id':
             el = elParent.WindowControl(searchDepth=depth, AutomationId=param, foundIndex=1)
-            el.SetTopmost()
+            # el.SetTopmost()
             return el
         elif type == 'name':
             el = elParent.WindowControl(searchDepth=depth, Name=param, foundIndex=1)
-            el.SetTopmost()
+            # el.SetTopmost()
             return el
 
     def PaneCtl(self, *args, **kwargs):

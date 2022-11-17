@@ -16,17 +16,18 @@ class Log():
         '''文件处理器'''
         fileHandler = logging.FileHandler('./log.txt', mode='a', encoding='utf-8')
         fileHandler.setLevel(level)
-        fileHandler.setFormatter(self.GetFomatter()[1])
+        fileHandler.setFormatter(self.GetFormatter()[1])
         return fileHandler
 
     def GetFormatter(self):
         '''格式器'''
-        consoleFmt = logging.Formatter(fmt='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
-        fileFmt = logging.Formatter(fmt='%(levelname)s:%(message)s')
+        consoleFmt = logging.Formatter(fmt='[%(asctime)s %(levelname)s]:%(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
+        fileFmt = logging.Formatter(fmt='[%(asctime)s %(levelname)s]:%(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
         return consoleFmt, fileFmt
 
     def GetLog(self):
         '''日志器添加到控制台处理器'''
-        self.log.addHandler(self.ConsoleHandle())
-        self.log.addHandler(self.FileHandle())
+        if not self.log.handlers:
+            self.log.addHandler(self.ConsoleHandle())
+            self.log.addHandler(self.FileHandle())
         return self.log
