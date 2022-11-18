@@ -1,5 +1,5 @@
 from Excel import Data, AppExcel
-from Invoice import InvoiceOperations
+from Invoice import InvoiceSoftware
 from ClipPic import Pic
 from Log import Log
 import os
@@ -11,6 +11,7 @@ class Main:
         self.objPic = Pic()
         log = Log()
         self.logger = log.GetLog()
+        self.objInvoice = InvoiceSoftware()
 
     def main(self):
         objData = Data()
@@ -26,29 +27,32 @@ class Main:
             for index, row in df.iterrows():
                 strInvoiceNum = row['发票号码'].strip()
                 isFirstTime = True if index == 0 or hasReset else False
-                hasReset = False
+                hasReset, numTryTimes = False, 0
                 dicDateFrom = self.GetDicDate(True, row['开票日期'].strip())
                 dicDateTo = self.GetDicDate(False)
 
                 # 异常处理，如果出现报错，将df中的数据写入文件，并且将sreenshot处理好，最好写入日志
-                try:
-                    strImgInputPath = InvoiceOperations(dicDateFrom, dicDateTo, strInvoiceNum, isFirstTime)
-                    screenshotsList.append(strImgInputPath)
-                    row['isSuccessful'] = ['Y']
-                except Exception as e:
-                    # hasError = True
-                    self.logger.error(e)
-                    # objExcel = AppExcel()
-                    # objExcel.WriteToExcel(strFilePath, sheetName, df)
-                    # self.ClipPicture(screenshotsList)
-                    hasReset = True
+                while numTryTimes < 3:
+                    try:
+                        strImgInputPath = self.objInvoice.InvoiceOperations(dicDateFrom, dicDateTo, strInvoiceNum, isFirstTime)
+                        screenshotsList.append(strImgInputPath)
+                        row['isSuccessful'] = ['Y']
+                        break
+                    except Exception as e:
+                        # hasError = True
+                        numTryTimes += 1
+                        self.logger.error(e)
+                        # objExcel = AppExcel()
+                        # objExcel.WriteToExcel(strFilePath, sheetName, df)
+                        # self.ClipPicture(screenshotsList)
+                        hasReset = True
             
-            # if not hasError:
-            self.ClipPicture(screenshotsList)
-            objExcel = AppExcel()
-            self.logger.info(f'结果回写到{strFilePath}')
-            objExcel.WriteToExcel(strFilePath, sheetName, df)
-            self.logger.info(f'回写到{strFilePath}完成')
+            if df.shape[0] > 0:
+                self.ClipPicture(screenshotsList)
+                objExcel = AppExcel()
+                self.logger.info(f'结果回写到Excel（{StrExcelName}）')
+                objExcel.WriteToExcel(strFilePath, sheetName, df)
+                self.logger.info(f'回写到Excel（{StrExcelName}）完成')
         
         os.system('"taskkill /f /im skfpShell.exe"')
         os.system('"taskkill /f /im skfp.exe"')
@@ -118,4 +122,7 @@ class Main:
 
 if __name__ == '__main__':
     objMain = Main()
-    objMain.main()
+    try:
+        objMain.main()
+    except Exception as e:
+        objMain.logger.error(e)
