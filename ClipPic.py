@@ -43,9 +43,10 @@ class Pic:
 
 
 if __name__ == '__main__':
-    strInputImgPath = os.path.join(os.getcwd(), r'ExamplePics\example.JPG')
-    strOutputImgPath = os.path.join(os.getcwd(), r'ExamplePics\result.jpg')
-    objPic = Pic()
-    objPic.ClipImg(strInputImgPath, strOutputImgPath)
+    pass
+    # strInputImgPath = os.path.join(os.getcwd(), r'ExamplePics\example.JPG')
+    # strOutputImgPath = os.path.join(os.getcwd(), r'ExamplePics\result.jpg')
+    # objPic = Pic()
+    # objPic.ClipImg(strInputImgPath, strOutputImgPath)
 
 

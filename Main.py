@@ -14,6 +14,7 @@ class Main:
         self.objInvoice = InvoiceSoftware()
 
     def main(self):
+        self.logger.info('--------------------------开始----------------------------')
         objData = Data()
         
         inputFileList = self.GetInputFileList()
@@ -107,7 +108,7 @@ class Main:
             return dicDateTo
 
     def ClipPicture(self, screenshotsList):
-        self.logger.info('----------------------------开始裁剪发票------------------------------')
+        self.logger.info('----------------------开始裁剪发票-------------------------')
         for strInputImgPath in screenshotsList:
             strOutputImgName = os.path.basename(strInputImgPath)
             # strOutputImgName = os.path.basename(strOutputImgPath)
@@ -118,7 +119,7 @@ class Main:
             except Exception as e:
                 self.logger.error(f'发票{strOutputImgName}裁剪失败--{e}')
                 next
-        self.logger.info('----------------------------结束裁剪发票------------------------------')
+        self.logger.info('----------------------结束裁剪发票-------------------------')
 
 if __name__ == '__main__':
     objMain = Main()

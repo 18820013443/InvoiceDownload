@@ -59,8 +59,9 @@ class BasicUIA(object):
 
 
 if __name__ == '__main__':
-    objBase = BasicUIA()
-    uia.WindowControl()
-    winMain = objBase.GetMainWindow('文件资源管理器')
-    el = objBase.FindEl(winMain, ctlType='PaneCtl', type='name', param='文件资源管理器', depth=1)
-    print(el.Name)
+    pass
+    # objBase = BasicUIA()
+    # uia.WindowControl()
+    # winMain = objBase.GetMainWindow('文件资源管理器')
+    # el = objBase.FindEl(winMain, ctlType='PaneCtl', type='name', param='文件资源管理器', depth=1)
+    # print(el.Name)

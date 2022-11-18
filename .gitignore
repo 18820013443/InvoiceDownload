@@ -4,13 +4,5 @@ ExamplePics
 ~$*
 *.jpg
 build
-Screenshots/20188527.jpg
-Screenshots/*.jpg
-Screenshots/20188527.jpg
-Screenshots/20188526.jpg
-Screenshots/20188527.jpg
-Screenshots/20188527.jpg
-Screenshots/20188509.jpg
-Screenshots/20188509.jpg
-.gitignore
-.gitignore
+Main.exe
+Installer/dist/Main.exe
