@@ -75,15 +75,21 @@ class Main:
         if isFromDate:
             strList = date.split('-')
             dicDateFrom = {
-                'elXYear': 150,
+                # 'elXYear': 150,
+                'elXYear': 0.093,
                 'year': '2022',
-                'elYYear': 94,
-                'elXMonth': 185,
+                'elYYear': 0.104,
+                # 'elYYear': 94,
+                # 'elXMonth': 185,
+                'elXMonth': 0.12,
                 'month': '10',
-                'elYMonth': 94,
-                'elXDay': 219,
+                # 'elYMonth': 94,
+                'elYMonth': 0.104,
+                # 'elXDay': 219,
+                'elXDay': 0.139,
                 'day': '01',
-                'exYDay': 94
+                # 'exYDay': 94
+                'exYDay': 0.104
             } # Input Params
             dicDateFrom['year'] = strList[0]
             dicDateFrom['month'] = strList[1]
@@ -91,16 +97,27 @@ class Main:
             return dicDateFrom
         else:
             date = datetime.datetime.now()
+            # dicDateTo = {
+            #     'elXYear': 150,
+            #     'year': '2022',
+            #     'elYYear': 156,
+            #     'elXMonth': 185,
+            #     'month': '11',
+            #     'elYMonth': 156,
+            #     'elXDay':219,
+            #     'day': '15',
+            #     'exYDay': 156
+            # } # Input Params
             dicDateTo = {
-                'elXYear': 150,
+                'elXYear': 0.093,
                 'year': '2022',
-                'elYYear': 156,
-                'elXMonth': 185,
+                'elYYear': 0.173,
+                'elXMonth': 0.12,
                 'month': '11',
-                'elYMonth': 156,
-                'elXDay':219,
+                'elYMonth': 0.173,
+                'elXDay':0.139,
                 'day': '15',
-                'exYDay': 156
+                'exYDay': 0.173
             } # Input Params
             dicDateTo['year'] = str(date.year)
             dicDateTo['month'] = str(date.month)

@@ -73,15 +73,31 @@ class InvoiceSoftware(BasicUIA):
         pyautogui.click(x, y)
         self.logger.info('点击发票管理')
     
-    def ClickEl(self, winName, elX, elY, el=None, shouldDoubleClick=False):
+    # def ClickEl(self, winName, elX, elY, el=None, shouldDoubleClick=False):
         
-        win = self.GetMainWindow(winName) if not el else el 
-        totalX, loginX = win.BoundingRectangle.width(), elX # elX 表示元素中心距离窗口左边距的长度
-        totalY, loginY = win.BoundingRectangle.height(), elY # elY 表示元素中心距离窗口top的高度
-        ratioX = loginX / totalX
-        ratioY = loginY / totalY
+    #     win = self.GetMainWindow(winName) if not el else el 
+    #     totalX, loginX = win.BoundingRectangle.width(), elX # elX 表示元素中心距离窗口左边距的长度
+    #     totalY, loginY = win.BoundingRectangle.height(), elY # elY 表示元素中心距离窗口top的高度
+    #     ratioX = loginX / totalX
+    #     ratioY = loginY / totalY
 
-        x, y = win.GetPosition(ratioX, ratioY)
+    #     x, y = win.GetPosition(ratioX, ratioY) 
+    #     if not shouldDoubleClick:
+    #         pyautogui.click(x, y)
+    #     else:
+    #         pyautogui.doubleClick(x, y)
+    #     pass
+
+    def ClickEl(self, winName, ratioX, ratioY, el=None, shouldDoubleClick=False):
+        
+        win = self.GetMainWindow(winName) if not el else el
+        win.Restore(0.2)
+        # totalX, loginX = win.BoundingRectangle.width(), elX # elX 表示元素中心距离窗口左边距的长度
+        # totalY, loginY = win.BoundingRectangle.height(), elY # elY 表示元素中心距离窗口top的高度
+        # ratioX = loginX / totalX
+        # ratioY = loginY / totalY
+
+        x, y = win.GetPosition(ratioX, ratioY) 
         if not shouldDoubleClick:
             pyautogui.click(x, y)
         else:
@@ -203,14 +219,15 @@ class InvoiceSoftware(BasicUIA):
             # winPopConfirm = self.FindEl(winInvoiceQueryChild, ctlType='PaneCtl', type='name', param='发票打印', depth=1)
             winPopConfirm = self.FindEl(winMain, ctlType='PaneCtl', type='name', param='发票打印', depth=6)
             time.sleep(0.15)
-            self.ClickEl('发票打印', 173, 471, el=winPopConfirm)
+            # self.ClickEl('发票打印', 173, 471, el=winPopConfirm)
+            self.ClickEl('发票打印', 0.335, 0.943, el=winPopConfirm)
             self.logger.info('点击（确认对话框中）中（确认）按钮')
         except:
             time.sleep(0.5)
             self.logger.info('点击（确认对话框中）中（确认）按钮-出错，重新查找点击按钮！')
             winInvoiceQueryChild = self.RecurrenceConfrimWindow()
             winPopConfirm = self.FindEl(winInvoiceQueryChild, ctlType='PaneCtl', type='name', param='发票打印', depth=2)
-            self.ClickEl('发票打印', 173, 471, el=winPopConfirm)
+            self.ClickEl('发票打印', 0.335, 0.943, el=winPopConfirm)
         self.SetTimeOut(20)
 
     def ClickBtnInPrintWindow(self, winName, btnName, isClickLogic=True):
@@ -260,7 +277,8 @@ class InvoiceSoftware(BasicUIA):
             self.logger.info('关闭（打印）窗口')
 
             # 关闭 增值税专用发票查询 窗口
-            self.ClickEl('增值税专用发票查询', 1146, 20, el=winInvoiceQueryChild)
+            # self.ClickEl('增值税专用发票查询', 1146, 20, el=winInvoiceQueryChild)
+            self.ClickEl('增值税专用发票查询', 0.977, 0.025, el=winInvoiceQueryChild)
             self.logger.info('关闭（增值税专用发票查询）窗口')
             # self.CloseWindow(winInvoiceQueryChild.GetChildren()[0])
 
@@ -308,32 +326,39 @@ class InvoiceSoftware(BasicUIA):
             objInvoice.OpenSoftware()
 
             # Click Login Button
-            objInvoice.ClickEl('登录-增值税发票开票软件金税盘版', 830, 528)
+            # objInvoice.ClickEl('登录-增值税发票开票软件金税盘版', 830, 528)
+            objInvoice.ClickEl('登录-增值税发票开票软件金税盘版', 0.767, 0.783)
 
             # Click Invocie Mgt
-            objInvoice.ClickEl(strWinQueryName, 372, 107)
+            # objInvoice.ClickEl(strWinQueryName, 372, 107)
+            objInvoice.ClickEl(strWinQueryName, 0.225, 0.079)
 
             # Click 发票查询
-            objInvoice.ClickQueryInvoice(strWinQueryName, 372, 197, 242)
+            # objInvoice.ClickQueryInvoice(strWinQueryName, 372, 197, 242)
+            objInvoice.ClickQueryInvoice(strWinQueryName, 0.235, 0.205, 0.254)
 
         # Input 开始日期 & 结束日期
         objInvoice.InputDate(strWinQueryName, dicDateFrom, dicDateTo)
 
         # Input Invoice#
-        objInvoice.InputInvoiceNumber(strWinQueryName, 193, 216, strInvoiceNum)
+        # objInvoice.InputInvoiceNumber(strWinQueryName, 193, 216, strInvoiceNum)
+        objInvoice.InputInvoiceNumber(strWinQueryName, 0.125, 0.238, strInvoiceNum)
 
         # Click 查询
-        objInvoice.ClickQueryBtn(strWinQueryName, 386, 216)
+        # objInvoice.ClickQueryBtn(strWinQueryName, 386, 216)
+        objInvoice.ClickQueryBtn(strWinQueryName, 0.25, 0.238)
 
         # Check 弹窗- 过程提示 -是否已经消失
         isDisappeared = objInvoice.ShouldDoubleClickQueryResult(strWinQueryName)
 
         # 双击查询结果
         if isDisappeared:
-            objInvoice.DoubleClickQueryResult(strWinQueryName, 386, 314)
+            # objInvoice.DoubleClickQueryResult(strWinQueryName, 386, 314)
+            objInvoice.DoubleClickQueryResult(strWinQueryName, 0.498, 0.345)
 
         # Click 打印
-        objInvoice.ClickPrintButton(strWinQueryName, 1115, 83)
+        # objInvoice.ClickPrintButton(strWinQueryName, 1115, 83)
+        objInvoice.ClickPrintButton(strWinQueryName, 0.949, 0.087)
 
         # 打开发票预览
         objInvoice.ClickBtnInPrintWindow(strWinQueryName, '预览', isClickLogic=True)

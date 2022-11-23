@@ -1,8 +1,8 @@
-__pycache__
-ExamplePics
-@AutomationLog.txt
-~$*
-*.jpg
 build
+__pycache__
+*.xlsx
+ExmaplePics
 Main.exe
-Installer/dist/Main.exe
+*.jpg
+*.png
+@AutomationLog.txt
